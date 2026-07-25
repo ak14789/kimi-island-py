@@ -104,7 +104,7 @@ class IslandWidget(QWidget):
         layout.setSpacing(8)
 
         header = QHBoxLayout()
-        self.title_label = QLabel("Kimi Island")
+        self.title_label = QLabel("Kimi Island Py")
         self.title_label.setObjectName("title")
         self.plan_label = QLabel("")
         self.plan_label.setObjectName("dim")

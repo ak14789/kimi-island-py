@@ -1,8 +1,9 @@
-# 🏝️ Kimi Island
+# 🏝️🐍 Kimi Island Py
 
-Kimi 订阅额度灵动岛 —— 一个悬浮在 Windows 屏幕顶部的桌面小工具，实时监控你的 Kimi 会员总额度、Kimi Code 周用量和频限窗口。
+Kimi Island Py —— 用 **Python + PySide6** 重写的 Kimi 订阅额度灵动岛，悬浮在 Windows 屏幕顶部，实时监控 Kimi 会员总额度、Kimi Code 周用量和频限窗口。
 
-> 灵感来自 macOS Dynamic Island，专为 Windows 打造。
+> 灵感来自 macOS Dynamic Island，专为 Windows 打造。  
+> 这是 [nekocharm1207/kimi-island](https://github.com/nekocharm1207/kimi-island) 的 Python 独立实现，与原版 Tauri + React 版本在实现上完全不同。
 
 ---
 
@@ -16,6 +17,7 @@ Kimi 订阅额度灵动岛 —— 一个悬浮在 Windows 屏幕顶部的桌面�
 
 ## ✨ 功能特性
 
+- **🐍 纯 Python 实现** —— 基于 PySide6 / Qt 6，无需 Node.js 或 Rust 工具链
 - **📊 实时额度监控** —— 自动拉取 Kimi 订阅数据，紧凑胶囊显示会员总额度使用率
 - **⚡ 频限窗口详情** —— 按 API 实际返回的时间窗口动态展示（如"每 5 小时"），不会丢失或错标
 - **👑 会员总额度** —— 展示订阅会员的 credit 总用量与到期时间
@@ -29,7 +31,7 @@ Kimi 订阅额度灵动岛 —— 一个悬浮在 Windows 屏幕顶部的桌面�
 
 ## 📥 下载
 
-从 [Releases](../../releases/latest) 页面下载 `kimi-island.exe`，双击即可运行，**无需安装 Python 或任何依赖**。
+从 [Releases](../../releases/latest) 页面下载 `kimi-island-py.exe`，双击即可运行，**无需安装 Python 或任何依赖**。
 
 > 系统要求：Windows 10 1903+ / Windows 11（x64）
 
@@ -52,7 +54,9 @@ Kimi 订阅额度灵动岛 —— 一个悬浮在 Windows 屏幕顶部的桌面�
 4. 复制 `access_token` 的值（通常以 `eyJhbG...` 开头）
 5. 粘贴到灵动岛展开面板的输入框，点击「保存」
 
-> Token 仅保存在本地 `%APPDATA%\kimi-island\config.json`，不会上传到任何服务器。
+> Token 仅保存在本地 `%APPDATA%\kimi-island-py\config.json`，不会上传到任何服务器。
+
+> **注意**：如果你之前用过 `kimi-island.exe` 旧版，旧配置保存在 `%APPDATA%\kimi-island\config.json`。rename 后配置目录已改为 `kimi-island-py`，旧配置不会自动迁移，需要重新粘贴一次 token。
 
 ---
 
@@ -64,7 +68,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m kimi_island.main
 
-# 调试模式：转储 API 原始 JSON 到 %APPDATA%\kimi-island\debug
+# 调试模式：转储 API 原始 JSON 到 %APPDATA%\kimi-island-py\debug
 .\.venv\Scripts\python.exe -m kimi_island.main --debug
 
 # 命令行验证（无界面，打印一次额度数据）
@@ -74,8 +78,8 @@ python -m venv .venv
 ## 📦 打包 exe
 
 ```powershell
-.\.venv\Scripts\python.exe -m PyInstaller --noconfirm kimi-island.spec
-# 产物在 dist\kimi-island.exe
+.\.venv\Scripts\python.exe -m PyInstaller --noconfirm kimi-island-py.spec
+# 产物在 dist\kimi-island-py.exe
 ```
 
 ## 🧪 测试
@@ -91,7 +95,7 @@ python -m venv .venv
 - **框架**: Python 3.12 + PySide6 (Qt 6)
 - **网络**: requests（Kimi Connect Protocol 内部 Web API）
 - **打包**: PyInstaller（单文件绿色 exe）
-- **配置**: `%APPDATA%\kimi-island\config.json`
+- **配置**: `%APPDATA%\kimi-island-py\config.json`
 
 ## ⚠️ 免责声明
 
@@ -99,7 +103,7 @@ python -m venv .venv
 
 ## 🙏 致谢
 
-本项目参考了 [nekocharm1207/kimi-island](https://github.com/nekocharm1207/kimi-island)（Tauri + React 实现）的 Kimi API 调用方式，在此基础上用 Python + PySide6 重写。
+本项目是受 [nekocharm1207/kimi-island](https://github.com/nekocharm1207/kimi-island)（Tauri + React + Rust 实现）启发而做的 **Python 独立重写**，并非原项目的 fork。Kimi API 调用逻辑参考了原项目的思路，UI 和代码全部重新实现。
 
 ## 📄 开源协议
 

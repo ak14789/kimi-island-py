@@ -1,4 +1,4 @@
-"""PyInstaller entry point for kimi-island.exe."""
+"""PyInstaller entry point for kimi-island-py.exe."""
 import sys
 
 from kimi_island.main import main

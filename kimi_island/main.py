@@ -58,7 +58,7 @@ def main() -> int:
     island.position_changed.connect(on_position)
 
     tray = QSystemTrayIcon(make_tray_icon(), parent=app)
-    tray.setToolTip("Kimi Island")
+    tray.setToolTip("Kimi Island Py")
     menu = QMenu()
 
     def on_fetched(snap) -> None:

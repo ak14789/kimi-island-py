@@ -1,4 +1,4 @@
-"""Persistent config stored in %APPDATA%\\kimi-island\\config.json."""
+"""Persistent config stored in %APPDATA%\\kimi-island-py\\config.json."""
 from __future__ import annotations
 
 import json
@@ -18,7 +18,7 @@ DEFAULTS = {
 
 def config_dir() -> Path:
     base = os.environ.get("APPDATA") or str(Path.home() / "AppData" / "Roaming")
-    path = Path(base) / "kimi-island"
+    path = Path(base) / "kimi-island-py"
     path.mkdir(parents=True, exist_ok=True)
     return path
 
