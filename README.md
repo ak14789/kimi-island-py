@@ -1,4 +1,4 @@
-# 🏝️🐍 Kimi Island Py
+﻿# 🏝️🐍 Kimi Island Py
 
 Kimi Island Py —— 用 **Python + PySide6** 重写的 Kimi 订阅额度灵动岛，悬浮在 Windows 屏幕顶部，实时监控 Kimi 会员总额度、Kimi Code 周用量和频限窗口。
 
@@ -56,7 +56,6 @@ Kimi Island Py —— 用 **Python + PySide6** 重写的 Kimi 订阅额度灵动
 
 > Token 仅保存在本地 `%APPDATA%\kimi-island-py\config.json`，不会上传到任何服务器。
 
-> **注意**：如果你之前用过 `kimi-island.exe` 旧版，旧配置保存在 `%APPDATA%\kimi-island\config.json`。rename 后配置目录已改为 `kimi-island-py`，旧配置不会自动迁移，需要重新粘贴一次 token。
 
 ---
 
