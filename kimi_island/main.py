@@ -50,11 +50,17 @@ def main() -> int:
         config_mod.save_config(state["cfg"])
         poller.refresh_now()
 
+    def on_save_refresh_token(token: str) -> None:
+        state["cfg"]["kimi_refresh_token"] = token
+        config_mod.save_config(state["cfg"])
+        poller.refresh_now()
+
     def on_position(x: int, y: int) -> None:
         state["cfg"]["position"] = [x, y]
         config_mod.save_config(state["cfg"])
 
     island.save_token_requested.connect(on_save_token)
+    island.save_refresh_token_requested.connect(on_save_refresh_token)
     island.position_changed.connect(on_position)
 
     tray = QSystemTrayIcon(make_tray_icon(), parent=app)

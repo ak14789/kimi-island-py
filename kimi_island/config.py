@@ -7,6 +7,7 @@ from pathlib import Path
 
 DEFAULTS = {
     "kimi_token": "",            # manual browser token (optional override)
+    "kimi_refresh_token": "",    # OAuth refresh_token for auto-renewal (optional)
     "yellow_threshold": 30,      # remaining % that turns the bar yellow
     "red_threshold": 10,         # remaining % that turns the bar red
     "poll_interval_normal": 60,

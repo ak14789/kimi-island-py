@@ -29,6 +29,7 @@ COLOR_CRIT = QColor("#ff453a")
 _TOKEN_SOURCE_LABELS = {
     "cli": "Kimi CLI（自动读取）",
     "manual": "浏览器 token（本地保存）",
+    "refresh": "自动续期 token（OAuth 刷新）",
 }
 
 PANEL_STYLE = """
@@ -65,6 +66,7 @@ def _ratio_color(remaining_pct: float, yellow: float, red: float) -> QColor:
 
 class IslandWidget(QWidget):
     save_token_requested = Signal(str)
+    save_refresh_token_requested = Signal(str)
     refresh_requested = Signal()
     position_changed = Signal(int, int)
 
@@ -152,6 +154,15 @@ class IslandWidget(QWidget):
         token_row.addWidget(self.token_input, 1)
         token_row.addWidget(save_btn)
         layout.addLayout(token_row)
+        refresh_row = QHBoxLayout()
+        self.refresh_input = QLineEdit()
+        self.refresh_input.setPlaceholderText("粘贴 refresh_token（可选，用于自动续期）")
+        self.refresh_input.setEchoMode(QLineEdit.Password)
+        save_refresh_btn = QPushButton("保存")
+        save_refresh_btn.clicked.connect(self._on_save_refresh_token)
+        refresh_row.addWidget(self.refresh_input, 1)
+        refresh_row.addWidget(save_refresh_btn)
+        layout.addLayout(refresh_row)
         self.token_status = QLabel("")
         self.token_status.setObjectName("dim")
         layout.addWidget(self.token_status)
@@ -371,6 +382,13 @@ class IslandWidget(QWidget):
         if token:
             self.save_token_requested.emit(token)
             self.token_input.clear()
+
+    def _on_save_refresh_token(self) -> None:
+        """Forward the pasted refresh_token and clear the input."""
+        token = self.refresh_input.text().strip()
+        if token:
+            self.save_refresh_token_requested.emit(token)
+            self.refresh_input.clear()
 
     def eventFilter(self, obj, event) -> bool:  # noqa: N802
         """Drag the expanded panel from any non-interactive area (labels/bg)."""

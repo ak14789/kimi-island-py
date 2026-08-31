@@ -4,11 +4,12 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import requests
 
-from .auth import TokenInfo
+from . import auth
+from .auth import TokenInfo, TokenRefreshError
 
 BASE_URL = "https://www.kimi.com"
 SUBSCRIPTION_URL = (
@@ -69,12 +70,8 @@ def _post(url: str, headers: dict, payload: dict) -> dict:
         raise KimiApiError(ERROR_PARSE, f"响应解析失败: {exc}") from exc
 
 
-def fetch_raw(
-    token_info: TokenInfo,
-    device_id: str,
-    dump_dir: Optional[Path] = None,
-) -> dict:
-    """Fetch subscription + usages. Returns {"subscription": ..., "usages": ...}."""
+def _fetch_both(token_info: TokenInfo, device_id: str, dump_dir: Optional[Path]) -> dict:
+    """Run both API calls and return {"subscription": ..., "usages": ...}."""
     headers = build_headers(token_info, device_id)
     subscription = _post(SUBSCRIPTION_URL, headers, {})
     usages = _post(USAGES_URL, headers, {"scope": ["FEATURE_CODING"]})
@@ -86,3 +83,34 @@ def fetch_raw(
                 json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
             )
     return raw
+
+
+def fetch_raw(
+    token_info: TokenInfo,
+    device_id: str,
+    dump_dir: Optional[Path] = None,
+    on_refresh: Optional[Callable[[TokenInfo], None]] = None,
+) -> dict:
+    """Fetch subscription + usages with a 401 self-healing retry.
+
+    On a 401 the token is refreshed once via its refresh_token (kimi-cli
+    OAuth flow) and both requests are replayed; on_refresh is notified with
+    the renewed TokenInfo so the caller can persist it. If the refresh also
+    fails, a single auth KimiApiError with guidance is raised.
+    """
+    try:
+        return _fetch_both(token_info, device_id, dump_dir)
+    except KimiApiError as exc:
+        if exc.kind != ERROR_AUTH or not token_info.refresh_token:
+            raise
+    try:
+        refreshed = auth.refresh_access_token(token_info.refresh_token)
+    except TokenRefreshError as exc:
+        raise KimiApiError(
+            ERROR_AUTH,
+            f"登录状态已过期，且自动刷新失败（{exc}）。"
+            "请重新登录 Kimi CLI，或在展开面板粘贴新的 token 与 refresh_token",
+        ) from exc
+    if on_refresh is not None:
+        on_refresh(refreshed)
+    return _fetch_both(refreshed, device_id, dump_dir)

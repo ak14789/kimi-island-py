@@ -18,15 +18,38 @@ def main() -> int:
     args = parser.parse_args()
 
     cfg = config.load_config()
-    token = auth.resolve_token(cfg)
+    token = auth.resolve_token(cfg, auto_refresh=True)
+    if token is not None and token.refreshed:
+        config.save_config(cfg)  # persist the rotated token pair
+        print("AUTO_REFRESH: token 临期/过期，已自动刷新成功")
     if token is None:
         print("NO_TOKEN: 未找到 CLI 凭证，也未配置手动 token")
         return 2
     print(f"token_source={token.source} expired={token.expired} "
-          f"expires_at={token.expires_at}")
+          f"expires_at={token.expires_at} has_refresh_token={bool(token.refresh_token)}")
     if token.expired:
-        print("TOKEN_EXPIRED: 登录状态已过期，请重新登录或粘贴新 token")
-        return 3
+        # resolve_token already attempted a refresh silently; retry once here
+        # to print the precise failure reason for diagnosis.
+        if token.refresh_token:
+            try:
+                token = auth.refresh_access_token(token.refresh_token)
+                auth.store_refreshed_token(cfg, token)
+                config.save_config(cfg)
+                print("AUTO_REFRESH: token 已过期，自动刷新成功")
+                print(f"token_source={token.source} expires_at={token.expires_at}")
+            except auth.TokenRefreshError as exc:
+                print(f"REFRESH_FAILED kind={exc.kind}: {exc}")
+                print(
+                    "TOKEN_EXPIRED: 登录状态已过期且自动刷新失败。"
+                    "请重新登录 Kimi CLI，或重新粘贴 token 与 refresh_token"
+                )
+                return 3
+        else:
+            print(
+                "TOKEN_EXPIRED: 登录状态已过期，本地没有 refresh_token 无法自动续期。"
+                "请重新登录 Kimi CLI，或粘贴新的 token"
+            )
+            return 3
 
     dump_dir = config.debug_dir() if args.debug else None
     try:

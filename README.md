@@ -24,7 +24,7 @@ Kimi Island Py —— 用 **Python + PySide6** 重写的 Kimi 订阅额度灵动
 - **🎨 智能预警** —— 剩余额度低于阈值自动变色（绿 → 黄 → 红），轮询间隔自适应（15s ~ 60s）
 - **🗕 三种形态** —— 紧凑胶囊 / 展开面板 / 圆点，点击展开、移开或点击外部自动收起
 - **🖱️ 自由拖动** —— 任意形态下都可拖动，位置自动记忆
-- **🔑 免配置登录** —— 自动读取 Kimi CLI 凭证，过期时自动回退到本地保存的浏览器 token
+- **🔑 免配置登录 + 自动续期** —— 自动读取 Kimi CLI 凭证，过期自动回退浏览器 token；持有 refresh_token 时自动换新凭证，长期零人工干预
 - **📌 置顶悬浮** —— 始终悬浮在最顶层，不影响其他窗口操作
 
 ---
@@ -41,20 +41,30 @@ Kimi Island Py —— 用 **Python + PySide6** 重写的 Kimi 订阅额度灵动
 
 ## 🔑 登录凭证
 
-程序**自动**获取登录凭证，通常无需任何操作：
+程序**自动**获取登录凭证并**自动续期**，通常无需任何操作：
 
-1. **Kimi CLI 凭证（优先）** —— 如果你在电脑上登录过 [Kimi CLI](https://www.kimi.com/code)，程序会自动读取 `~/.kimi/credentials/kimi-code.json`
-2. **浏览器 token（自动回退 / 手动覆盖）** —— CLI 凭证过期时，自动使用本地保存的浏览器 token；也可以随时在展开面板中手动粘贴新的 token 覆盖
+1. **Kimi CLI 凭证（优先）** —— 如果你在电脑上登录过 [Kimi CLI](https://www.kimi.com/code)，程序会自动读取 `~/.kimi/credentials/kimi-code.json`（含 refresh_token，可自动续期）
+2. **浏览器 token（自动回退 / 手动覆盖）** —— CLI 凭证过期时，自动使用本地保存的浏览器 token；也可以随时在展开面板中手动粘贴覆盖
+3. **自动续期** —— 只要拿到 refresh_token，access_token 过期前/401 时会自动换新，无需重新登录；刷新结果自动回写本地 config.json
 
-手动获取浏览器 token 的步骤：
+### 什么是 refresh_token？
+
+- `access_token`：调用 Kimi 接口的"通行证"，**短时效**，过期后接口返回 401——这正是旧版"过一段时间就提示过期"的原因
+- `refresh_token`：用来**换发新 access_token 的长期凭证**——只要它有效，程序就能在过期前/401 时自动换新 token，你完全无感
+
+### 手动获取浏览器 token（建议两个一起粘贴）
 
 1. 浏览器访问 [kimi.com/code/console](https://kimi.com/code/console) 并登录
 2. 按 `F12` 打开开发者工具
 3. 切换到 **Application** → **Local Storage** → `https://kimi.com`
 4. 复制 `access_token` 的值（通常以 `eyJhbG...` 开头）
-5. 粘贴到灵动岛展开面板的输入框，点击「保存」
+5. **在同一位置找到 `refresh_token`，把它的值也复制下来**
+6. 回到灵动岛展开面板：
+   - `access_token` 粘贴到「粘贴浏览器 token」输入框 → 点「保存」
+   - `refresh_token` 粘贴到下一行「粘贴 refresh_token」输入框 → 点「保存」
 
-> Token 仅保存在本地 `%APPDATA%\kimi-island-py\config.json`，不会上传到任何服务器。
+> 只粘贴 access_token 也能用，但过期后需要重新手动粘贴；两个都贴即可长期自动续期。
+> Token 与 refresh_token 仅保存在本地 `%APPDATA%\kimi-island-py\config.json`，不会上传到任何服务器。
 
 
 ---
